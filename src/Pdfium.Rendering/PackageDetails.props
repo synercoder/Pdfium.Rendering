@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageTags>Pdfium pdf wrapper rendering</PackageTags>
+    <Product>Pdfium.Rendering</Product>
+    <Title>Pdfium.Rendering</Title>
+    <Description>Render pdf pages to Bgra pixels byte array.</Description>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+  </PropertyGroup>
+
+</Project>

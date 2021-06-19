@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Pdfium.Rendering.TestConsole": {
+      "commandName": "Project"
+    },
+    "WSL 2": {
+      "commandName": "WSL2",
+      "distributionName": "Ubuntu"
+    }
+  }
+}
