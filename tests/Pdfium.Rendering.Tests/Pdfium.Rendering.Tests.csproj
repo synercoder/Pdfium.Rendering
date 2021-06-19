@@ -29,7 +29,7 @@
     </Content>
   </ItemGroup>
 
-  <ItemGroup>\
+  <ItemGroup>
     <PackageReference Include="SixLabors.ImageSharp" />
   </ItemGroup>
 
