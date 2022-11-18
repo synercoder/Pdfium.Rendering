@@ -37,8 +37,9 @@ namespace Pdfium.Rendering
         /// <param name="dpiX">The DPI to use for the x-axis</param>
         /// <param name="dpiY">The DPI to use for the y-axis</param>
         /// <param name="transparentBackground">Boolean to indicate if the background should be rendered as transparent or white.</param>
+        /// <param name="renderFlags">Use flags to change the render mode.</param>
         /// <returns>A <see cref="Render"/> of this page.</returns>
-        public Render Render(float dpiX = 72, float dpiY = 72, bool transparentBackground = false)
+        public Render Render(float dpiX = 72, float dpiY = 72, bool transparentBackground = false, RenderFlags renderFlags = 0)
         {
             const int BYTES_PER_PIXEL = 4;
             var (w, h) = Size;
@@ -58,7 +59,7 @@ namespace Pdfium.Rendering
 
                 SecuredWrapper.FPDFBitmap_FillRect(handle, 0, 0, width, height, background);
 
-                SecuredWrapper.FPDF_RenderPageBitmap(handle, _page, 0, 0, width, height, 0, 0);
+                SecuredWrapper.FPDF_RenderPageBitmap(handle, _page, 0, 0, width, height, 0, (FPDF_RenderingFlags)renderFlags);
 
                 SecuredWrapper.FPDFBitmap_Destroy(handle);
             }

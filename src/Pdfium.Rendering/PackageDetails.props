@@ -10,7 +10,7 @@
     <Product>Pdfium.Rendering</Product>
     <Title>Pdfium.Rendering</Title>
     <Description>Render pdf pages to Bgra pixels byte array.</Description>
-    <PackageReleaseNotes>Destory bitmap handle after use.</PackageReleaseNotes>
+    <PackageReleaseNotes>Destory bitmap handle after use. Added rendering flags.</PackageReleaseNotes>
   </PropertyGroup>
 
 </Project>
