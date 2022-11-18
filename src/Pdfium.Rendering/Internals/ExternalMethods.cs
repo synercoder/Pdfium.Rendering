@@ -29,6 +29,9 @@ namespace Pdfium.Rendering.Internals
         public static extern IntPtr FPDFBitmap_CreateEx(int width, int height, int format, IntPtr first_scan, int stride);
 
         [DllImport(LIBRARY_NAME)]
+        public static extern IntPtr FPDFBitmap_Destroy(IntPtr bitmap);
+
+        [DllImport(LIBRARY_NAME)]
         public static extern void FPDFBitmap_FillRect(IntPtr bitmap, int left, int top, int width, int height, uint color);
         
         [DllImport(LIBRARY_NAME)]

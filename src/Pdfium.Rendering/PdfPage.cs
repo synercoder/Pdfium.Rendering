@@ -59,6 +59,8 @@ namespace Pdfium.Rendering
                 SecuredWrapper.FPDFBitmap_FillRect(handle, 0, 0, width, height, background);
 
                 SecuredWrapper.FPDF_RenderPageBitmap(handle, _page, 0, 0, width, height, 0, 0);
+
+                SecuredWrapper.FPDFBitmap_Destroy(handle);
             }
 
             return new Render(byteArray, width, height);

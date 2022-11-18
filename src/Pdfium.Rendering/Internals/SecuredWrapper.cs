@@ -95,6 +95,12 @@ namespace Pdfium.Rendering.Internals
                 return ExternalMethods.FPDFBitmap_CreateEx(width, height, format, first_scan, stride);
         }
 
+        public static IntPtr FPDFBitmap_Destroy(IntPtr bitmap)
+        {
+            lock (_lockObj)
+                return ExternalMethods.FPDFBitmap_Destroy(bitmap);
+        }
+
         public static void FPDFBitmap_FillRect(IntPtr bitmapHandle, int left, int top, int width, int height, uint color)
         {
             lock (_lockObj)
