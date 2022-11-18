@@ -5,14 +5,12 @@ using System;
 
 namespace Pdfium.Rendering.Tests.Helpers
 {
-    public static partial class ImageAssert
+    public static class ImageAssert
     {
-        private const string ERROR_TOLERANCE_MESSAGE = "The error tolerance can not be less than zero, or higher or equal to 100.";
-
         public static void VisualEquals(Image expected, Image actual, double errorTolerance)
         {
-            using(var expectedClone = expected.CloneAs<Bgra32>())
-            using(var actualClone = actual.CloneAs<Bgra32>())
+            using (var expectedClone = expected.CloneAs<Bgra32>())
+            using (var actualClone = actual.CloneAs<Bgra32>())
             {
                 VisualEquals(expectedClone, actualClone, errorTolerance);
             }
@@ -24,7 +22,7 @@ namespace Pdfium.Rendering.Tests.Helpers
             _ = actual ?? throw new ArgumentNullException(nameof(actual));
 
             if (errorTolerance < 0 || errorTolerance >= 100)
-                throw new ArgumentOutOfRangeException(nameof(errorTolerance), ERROR_TOLERANCE_MESSAGE);
+                throw new ArgumentOutOfRangeException(nameof(errorTolerance), Messages.ERROR_TOLERANCE_MESSAGE);
 
             if (expected.Width != actual.Width || expected.Height != actual.Height)
                 throw new SizeException(expected, actual, $"{nameof(ImageAssert)}.{nameof(VisualEquals)}");
@@ -33,10 +31,12 @@ namespace Pdfium.Rendering.Tests.Helpers
 
             for (int y = 0; y < expected.Height; y++)
             {
+                Span<Bgra32> expectedRowSpan = expected.GetPixelRowSpan(y);
+                Span<Bgra32> actualRowSpan = actual.GetPixelRowSpan(y);
                 for (int x = 0; x < expected.Width; x++)
                 {
-                    var pixel1 = expected[x, y];
-                    var pixel2 = actual[x, y];
+                    var pixel1 = expectedRowSpan[x];
+                    var pixel2 = actualRowSpan[x];
 
                     diff += Math.Abs(pixel1.R - pixel2.R);
                     diff += Math.Abs(pixel1.G - pixel2.G);
@@ -49,6 +49,11 @@ namespace Pdfium.Rendering.Tests.Helpers
 
             if (diff > errorTolerance)
                 throw new VisualException(expected, actual, diff, $"{nameof(ImageAssert)}.{nameof(VisualEquals)}");
+        }
+
+        private static class Messages
+        {
+            public const string ERROR_TOLERANCE_MESSAGE = "The error tolerance can not be less than zero, or higher or equal to 100.";
         }
     }
 }

@@ -56,16 +56,6 @@
         <DefineConstants>$(DefineConstants);SUPPORTS_NULLABLEREFATTRIBUTES</DefineConstants>
       </PropertyGroup>
     </When>
-    <When Condition="'$(TargetFramework)' == 'net5.0'">
-      <PropertyGroup>
-        <DefineConstants>$(DefineConstants);SUPPORTS_MATHF</DefineConstants>
-        <DefineConstants>$(DefineConstants);SUPPORTS_HASHCODE</DefineConstants>
-        <DefineConstants>$(DefineConstants);SUPPORTS_CODECOVERAGE</DefineConstants>
-        <DefineConstants>$(DefineConstants);SUPPORTS_NULLABLEREFATTRIBUTES</DefineConstants>
-        <DefineConstants>$(DefineConstants);SUPPORTS_MEMBERNOTNULL</DefineConstants>
-        <DefineConstants>$(DefineConstants);SUPPORTS_INIT</DefineConstants>
-      </PropertyGroup>
-    </When>
     <When Condition="'$(TargetFramework)' == 'net6.0'">
       <PropertyGroup>
         <DefineConstants>$(DefineConstants);SUPPORTS_MATHF</DefineConstants>
