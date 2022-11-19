@@ -2,6 +2,9 @@ using System;
 
 namespace Pdfium.Rendering
 {
+    /// <summary>
+    /// Rendering flags to change the way pages are rendered.
+    /// </summary>
     [Flags]
     public enum RenderFlags
     {
