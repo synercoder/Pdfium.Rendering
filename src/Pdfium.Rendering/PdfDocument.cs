@@ -12,6 +12,7 @@ namespace Pdfium.Rendering
     {
         private readonly int _streamId;
         private readonly IntPtr _documentPointer;
+        private readonly bool _ownsStream;
         private bool _disposed;
 
         /// <summary>
@@ -19,7 +20,16 @@ namespace Pdfium.Rendering
         /// </summary>
         /// <param name="stream"><see cref="Stream"/> containing a pdf document</param>
         public PdfDocument(Stream stream)
-            : this(stream, null)
+            : this(stream, null, false)
+        { }
+
+        /// <summary>
+        /// Construct a <see cref="PdfDocument"/>
+        /// </summary>
+        /// <param name="stream"><see cref="Stream"/> containing a pdf document</param>
+        /// <param name="ownsStream">If passed true, when disposing, the stream will also be disposed.</param>
+        public PdfDocument(Stream stream, bool ownsStream)
+            : this(stream, null, ownsStream)
         { }
 
         /// <summary>
@@ -27,7 +37,8 @@ namespace Pdfium.Rendering
         /// </summary>
         /// <param name="stream"><see cref="Stream"/> containing a pdf document</param>
         /// <param name="password">The password needed to open <paramref name="stream"/> document.</param>
-        public PdfDocument(Stream stream, string? password)
+        /// <param name="ownsStream">If passed true, when disposing, the stream will also be disposed.</param>
+        public PdfDocument(Stream stream, string? password, bool ownsStream)
         {
             _ = stream ?? throw new ArgumentNullException(nameof(stream));
 
@@ -38,6 +49,7 @@ namespace Pdfium.Rendering
             PageCount = SecuredWrapper.FPDF_GetPageCount(_documentPointer);
 
             PageSizes = _getPageSizes();
+            _ownsStream = ownsStream;
         }
 
         /// <summary>
@@ -95,8 +107,12 @@ namespace Pdfium.Rendering
             {
                 if (disposing)
                 {
-                    StreamTracker.Unregister(_streamId);
-
+                    var stream = StreamTracker.Unregister(_streamId);
+                    if (_ownsStream)
+                    {
+                        stream?.Dispose();
+                    }
+                        
                     SecuredWrapper.FPDF_CloseDocument(_documentPointer);
                 }
                 _disposed = true;
