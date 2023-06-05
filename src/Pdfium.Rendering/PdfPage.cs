@@ -39,29 +39,57 @@ namespace Pdfium.Rendering
         /// <param name="transparentBackground">Boolean to indicate if the background should be rendered as transparent or white.</param>
         /// <param name="renderFlags">Use flags to change the render mode.</param>
         /// <returns>A <see cref="Render"/> of this page.</returns>
-        public Render Render(float dpiX = 72, float dpiY = 72, bool transparentBackground = false, RenderFlags renderFlags = 0)
+        public Render Render(float dpiX = 72, float dpiY = 72, bool transparentBackground = false, RenderFlags renderFlags = default)
         {
-            const int BYTES_PER_PIXEL = 4;
             var (w, h) = Size;
 
-            var width = (int)(w / 72 * dpiX);
-            var height = (int)(h / 72 * dpiY);
+            var width = (int)( w / 72 * dpiX );
+            var height = (int)( h / 72 * dpiY );
+
+            return RenderToSize(width, height, transparentBackground, renderFlags);
+        }
+
+        /// <summary>
+        /// Render this page to <see cref="Render"/> with prodivded <paramref name="width"/> &amp; <paramref name="height"/>.
+        /// </summary>
+        /// <param name="width">The width to render.</param>
+        /// <param name="height">The height to render.</param>
+        /// <param name="transparentBackground">Boolean to indicate if the background should be rendered as transparent or white.</param>
+        /// <param name="renderFlags">Use flags to change the render mode.</param>
+        /// <returns>A <see cref="Render"/> of this page.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="width"/> or <paramref name="height"/> is less than 1.</exception>
+        public Render RenderToSize(int width, int height, bool transparentBackground = false, RenderFlags renderFlags = default)
+        {
+            if (width < 1)
+                throw new ArgumentOutOfRangeException(nameof(width), "The value for the width parameter can not be less than 1.");
+            if (height < 1)
+                throw new ArgumentOutOfRangeException(nameof(height), "The value for the height parameter can not be less than 1.");
+
+            const int BYTES_PER_PIXEL = 4;
 
             var byteArray = new byte[BYTES_PER_PIXEL * width * height];
 
             using (var pinnedArray = Pinned.Pin(byteArray))
             {
-                var handle = SecuredWrapper.FPDFBitmap_CreateEx(width, height, 4, pinnedArray.AddresOfPin, width * BYTES_PER_PIXEL);
+                IntPtr handle = IntPtr.Zero;
 
-                uint background = transparentBackground 
-                    ? 0x00FFFFFF 
-                    : 0xFFFFFFFF;
+                try
+                {
+                    handle = SecuredWrapper.FPDFBitmap_CreateEx(width, height, 4, pinnedArray.AddresOfPin, width * BYTES_PER_PIXEL);
 
-                SecuredWrapper.FPDFBitmap_FillRect(handle, 0, 0, width, height, background);
+                    uint background = transparentBackground
+                        ? 0x00FFFFFF
+                        : 0xFFFFFFFF;
 
-                SecuredWrapper.FPDF_RenderPageBitmap(handle, _page, 0, 0, width, height, 0, (FPDF_RenderingFlags)renderFlags);
+                    SecuredWrapper.FPDFBitmap_FillRect(handle, 0, 0, width, height, background);
 
-                SecuredWrapper.FPDFBitmap_Destroy(handle);
+                    SecuredWrapper.FPDF_RenderPageBitmap(handle, _page, 0, 0, width, height, 0, (FPDF_RenderingFlags)renderFlags);
+                }
+                finally
+                {
+                    if (handle != IntPtr.Zero)
+                        SecuredWrapper.FPDFBitmap_Destroy(handle);
+                }
             }
 
             return new Render(byteArray, width, height);
