@@ -6,21 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="..\..\native-pdfium\macos-x64\libpdfium.dylib" Link="macos-x64\libpdfium.dylib">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\native-pdfium\linux\libpdfium.so" Link="linux\libpdfium.so">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\native-pdfium\win-x64\pdfium.dll" Link="win-x64\pdfium.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\native-pdfium\win-x86\pdfium.dll" Link="win-x86\pdfium.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="simple.pdf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -32,6 +17,32 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Pdfium.Rendering\Pdfium.Rendering.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="bblanchon.PDFium.Win32" Version="$(PdfiumVersion)"
+                      Condition="'$(RuntimeIdentifier)'==''
+                        Or '$(RuntimeIdentifier)'=='win-x64'
+                        Or '$(RuntimeIdentifier)'=='win-x86'
+                        Or '$(RuntimeIdentifier)'=='win-arm64'" />
+    <PackageReference Include="bblanchon.PDFium.Linux" Version="$(PdfiumVersion)"
+                      Condition="'$(RuntimeIdentifier)'==''
+                        Or '$(RuntimeIdentifier)'=='linux-x64'
+                        Or '$(RuntimeIdentifier)'=='linux-x86'
+                        Or '$(RuntimeIdentifier)'=='linux-musl-x64'
+                        Or '$(RuntimeIdentifier)'=='linux-musl-x86'
+                        Or '$(RuntimeIdentifier)'=='linux-arm'
+                        Or '$(RuntimeIdentifier)'=='linux-arm64'" />
+    <PackageReference Include="bblanchon.PDFium.macOS" Version="$(PdfiumVersion)"
+                      Condition="'$(RuntimeIdentifier)'==''
+                        Or '$(RuntimeIdentifier)'=='osx-x64'
+                        Or '$(RuntimeIdentifier)'=='osx-arm64'" />
+    <PackageReference Include="bblanchon.PDFium.Android" Version="$(PdfiumVersion)"
+                      Condition="'$(RuntimeIdentifier)'=='android-arm64'" />
+    <PackageReference Include="bblanchon.PDFium.iOS" Version="$(PdfiumVersion)"
+                      Condition="'$(RuntimeIdentifier)'=='ios-arm64'" />
+    <PackageReference Include="bblanchon.PDFium.WebAssembly " Version="$(PdfiumVersion)"
+                      Condition="'$(RuntimeIdentifier)'=='browser-wasm'" />
   </ItemGroup>
 
 </Project>

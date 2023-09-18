@@ -1,1 +1,0 @@
-PDFium native build provided by https://github.com/bblanchon/pdfium-binaries, release chromium/4542
