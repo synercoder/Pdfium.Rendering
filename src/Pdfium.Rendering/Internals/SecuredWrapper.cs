@@ -137,6 +137,76 @@ namespace Pdfium.Rendering.Internals
                 ExternalMethods.FPDF_ClosePage(page);
         }
 
+        public static bool FPDFPage_GetTrimBox(IntPtr page, out Rectangle rectangle)
+        {
+            lock (_lockObj)
+            {
+                if (ExternalMethods.FPDFPage_GetTrimBox(page, out var left, out var bottom, out var right, out var top))
+                {
+                    rectangle = new Rectangle(left, bottom, right, top);
+                    return true;
+                }
+            }
+            rectangle = new Rectangle(0, 0);
+            return false;
+        }
+
+        public static bool FPDFPage_GetCropBox(IntPtr page, out Rectangle rectangle)
+        {
+            lock (_lockObj)
+            {
+                if (ExternalMethods.FPDFPage_GetCropBox(page, out var left, out var bottom, out var right, out var top))
+                {
+                    rectangle = new Rectangle(left, bottom, right, top);
+                    return true;
+                }
+            }
+            rectangle = new Rectangle(0, 0);
+            return false;
+        }
+
+        public static bool FPDFPage_GetMediaBox(IntPtr page, out Rectangle rectangle)
+        {
+            lock (_lockObj)
+            {
+                if (ExternalMethods.FPDFPage_GetMediaBox(page, out var left, out var bottom, out var right, out var top))
+                {
+                    rectangle = new Rectangle(left, bottom, right, top);
+                    return true;
+                }
+            }
+            rectangle = new Rectangle(0, 0);
+            return false;
+        }
+
+        public static bool FPDFPage_GetBleedBox(IntPtr page, out Rectangle rectangle)
+        {
+            lock (_lockObj)
+            {
+                if (ExternalMethods.FPDFPage_GetBleedBox(page, out var left, out var bottom, out var right, out var top))
+                {
+                    rectangle = new Rectangle(left, bottom, right, top);
+                    return true;
+                }
+            }
+            rectangle = new Rectangle(0, 0);
+            return false;
+        }
+
+        public static bool FPDFPage_GetArtBox(IntPtr page, out Rectangle rectangle)
+        {
+            lock (_lockObj)
+            {
+                if (ExternalMethods.FPDFPage_GetArtBox(page, out var left, out var bottom, out var right, out var top))
+                {
+                    rectangle = new Rectangle(left, bottom, right, top);
+                    return true;
+                }
+            }
+            rectangle = new Rectangle(0, 0);
+            return false;
+        }
+
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Match FPDF delegate naming")]
         private delegate int FPDF_GetBlockDelegate(IntPtr param, uint position, IntPtr buffer, uint size);
