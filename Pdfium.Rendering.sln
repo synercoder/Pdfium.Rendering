@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{B109FA91-A
 		Directory.Build.props = Directory.Build.props
 		Directory.Build.targets = Directory.Build.targets
 		LICENSE = LICENSE
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{0290839F-B61C-43E6-933B-5AA16C029487}"
@@ -36,31 +37,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{BD8B
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pdfium.Rendering.TestConsole", "samples\Pdfium.Rendering.TestConsole\Pdfium.Rendering.TestConsole.csproj", "{47392639-240E-443E-AF61-1818C210431D}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "native-pdfium", "native-pdfium", "{11F45C92-E59B-45CB-BBEC-BF321AE752A8}"
-	ProjectSection(SolutionItems) = preProject
-		native-pdfium\README.md = native-pdfium\README.md
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "linux", "linux", "{12C6B2F0-27DB-436E-881C-181E728D93CE}"
-	ProjectSection(SolutionItems) = preProject
-		native-pdfium\linux\libpdfium.so = native-pdfium\linux\libpdfium.so
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "macosx-x64", "macosx-x64", "{F012A364-3C09-4FBA-978B-BAA8A63281AA}"
-	ProjectSection(SolutionItems) = preProject
-		native-pdfium\macos-x64\libpdfium.dylib = native-pdfium\macos-x64\libpdfium.dylib
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "win-x64", "win-x64", "{F2B1D9C9-A404-4C2D-A557-759E8039C742}"
-	ProjectSection(SolutionItems) = preProject
-		native-pdfium\win-x64\pdfium.dll = native-pdfium\win-x64\pdfium.dll
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "win-x86", "win-x86", "{B15A8842-30CF-450D-891E-E75437CC08B3}"
-	ProjectSection(SolutionItems) = preProject
-		native-pdfium\win-x86\pdfium.dll = native-pdfium\win-x86\pdfium.dll
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{BF8C09C3-403B-4AB9-A709-08A21254395D}"
 EndProject
@@ -98,11 +74,6 @@ Global
 		{978F21DF-A142-46CA-B339-F4EE1F01AAE9} = {C9CE4AA5-B7C7-4C42-9455-7F402661F1F0}
 		{BD8BDABA-7ACC-4D9F-A34E-440F38A84CDC} = {B109FA91-ABD6-4774-AD90-141914B26270}
 		{47392639-240E-443E-AF61-1818C210431D} = {BD8BDABA-7ACC-4D9F-A34E-440F38A84CDC}
-		{11F45C92-E59B-45CB-BBEC-BF321AE752A8} = {B109FA91-ABD6-4774-AD90-141914B26270}
-		{12C6B2F0-27DB-436E-881C-181E728D93CE} = {11F45C92-E59B-45CB-BBEC-BF321AE752A8}
-		{F012A364-3C09-4FBA-978B-BAA8A63281AA} = {11F45C92-E59B-45CB-BBEC-BF321AE752A8}
-		{F2B1D9C9-A404-4C2D-A557-759E8039C742} = {11F45C92-E59B-45CB-BBEC-BF321AE752A8}
-		{B15A8842-30CF-450D-891E-E75437CC08B3} = {11F45C92-E59B-45CB-BBEC-BF321AE752A8}
 		{BF8C09C3-403B-4AB9-A709-08A21254395D} = {B109FA91-ABD6-4774-AD90-141914B26270}
 		{B1684E27-8324-42B0-A8CE-1D8324546231} = {BF8C09C3-403B-4AB9-A709-08A21254395D}
 	EndGlobalSection

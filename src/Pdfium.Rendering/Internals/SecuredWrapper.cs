@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
@@ -22,16 +23,76 @@ namespace Pdfium.Rendering.Internals
             if (libraryName == ExternalMethods.LIBRARY_NAME)
             {
                 var basePath = new FileInfo(typeof(SecuredWrapper).Assembly.Location).Directory?.FullName ?? Environment.CurrentDirectory;
-                var path = RuntimeInformation.ProcessArchitecture switch
+
+                var filename = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                    ? "pdfium.dll"
+                    : RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+                    ? "libpdfium.so"
+                    : RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
+                    ? "libpdfium.dylib"
+                    : "";
+
+                var rid = RuntimeInformation.RuntimeIdentifier switch
                 {
-                    var arch when arch == Architecture.X64 && RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => Path.Combine(basePath, "win-x64", "pdfium.dll"),
-                    var arch when arch == Architecture.X86 && RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => Path.Combine(basePath, "win-x86", "pdfium.dll"),
-                    var arch when arch == Architecture.X64 && RuntimeInformation.IsOSPlatform(OSPlatform.OSX) => Path.Combine(basePath, "macos-x64", "libpdfium.dylib"),
-                    _ when RuntimeInformation.IsOSPlatform(OSPlatform.Linux) => Path.Combine(basePath, "linux", "libpdfium.so"),
-                    _ => throw new PlatformNotSupportedException("Platform is not supported by the default loader, set PdfiumResolver.Resolve delegate with a method to load the native Pdfium library.")
+                    "linux-musl-x64" => "linux-musl-x64",
+                    "linux-musl-x86" => "linux-musl-x86",
+                    _ => RuntimeInformation.ProcessArchitecture switch
+                    {
+                        var arch when arch == Architecture.X64 && RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => "win-x64",
+                        var arch when arch == Architecture.X86 && RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => "win-x86",
+                        var arch when arch == Architecture.Arm64 && RuntimeInformation.IsOSPlatform(OSPlatform.Windows) => "win-arm64",
+
+                        var arch when arch == Architecture.X64 && RuntimeInformation.IsOSPlatform(OSPlatform.OSX) => "osx-x64",
+                        var arch when arch == Architecture.Arm64 && RuntimeInformation.IsOSPlatform(OSPlatform.OSX) => "osx-arm64",
+
+                        var arch when arch == Architecture.Arm && RuntimeInformation.IsOSPlatform(OSPlatform.Linux) => "linux-arm",
+                        var arch when arch == Architecture.Arm64 && RuntimeInformation.IsOSPlatform(OSPlatform.Linux) => "linux-arm64",
+                        var arch when arch == Architecture.X64 && RuntimeInformation.IsOSPlatform(OSPlatform.Linux) => "linux-x64",
+                        var arch when arch == Architecture.X86 && RuntimeInformation.IsOSPlatform(OSPlatform.Linux) => "linux-x86",
+
+                        _ => RuntimeInformation.RuntimeIdentifier
+                    }
                 };
 
-                libHandle = NativeLibrary.Load(path);
+                // Try to directly lookup native assembly
+                if (!string.IsNullOrWhiteSpace(filename) && !string.IsNullOrWhiteSpace(rid))
+                {
+                    var path = Path.Combine(basePath, "runtimes", rid, "native", filename);
+
+                    if (File.Exists(path))
+                    {
+                        libHandle = NativeLibrary.Load(path);
+                        return libHandle;
+                    }
+                }
+
+                // Try to find first assembly that matches correct filename
+                if (!string.IsNullOrWhiteSpace(filename))
+                {
+                    var path = Directory.EnumerateFiles(basePath, filename, SearchOption.AllDirectories).FirstOrDefault();
+                    if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
+                    {
+                        libHandle = NativeLibrary.Load(path);
+                        return libHandle;
+                    }
+                }
+
+                // Try to find any native assembly with a pdfium name
+                var possibleFileNames = new string[]
+                {
+                    "pdfium.dll",
+                    "libpdfium.so",
+                    "libpdfium.dylib"
+                };
+                foreach (var possibleName in possibleFileNames)
+                {
+                    var path = Directory.EnumerateFiles(basePath, filename, SearchOption.AllDirectories).FirstOrDefault();
+                    if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
+                    {
+                        libHandle = NativeLibrary.Load(path);
+                        return libHandle;
+                    }
+                }
             }
             return libHandle;
         }
