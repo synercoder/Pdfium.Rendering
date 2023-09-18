@@ -19,12 +19,51 @@ namespace Pdfium.Rendering
 
             _page = SecuredWrapper.FPDF_LoadPage(document, PageNumber - 1);
             _textPage = SecuredWrapper.FPDFText_LoadPage(_page);
+
+            if (SecuredWrapper.FPDFPage_GetMediaBox(_page, out var mediaBox))
+                MediaBox = mediaBox;
+            else
+                throw new InvalidOperationException("Media box should not be null.");
+
+            if (SecuredWrapper.FPDFPage_GetCropBox(_page, out var cropBox))
+                CropBox = cropBox;
+            if (SecuredWrapper.FPDFPage_GetBleedBox(_page, out var bleedBox))
+                BleedBox = bleedBox;
+            if (SecuredWrapper.FPDFPage_GetTrimBox(_page, out var trimBox))
+                TrimBox = trimBox;
+            if (SecuredWrapper.FPDFPage_GetArtBox(_page, out var artBox))
+                ArtBox = artBox;
         }
 
         /// <summary>
         /// The <see cref="Size"/> of this page
         /// </summary>
         public Size Size { get; }
+
+        /// <summary>
+        /// Get "MediaBox" entry from the page dictionary.
+        /// </summary>
+        public Rectangle MediaBox { get; }
+
+        /// <summary>
+        /// Get "CropBox" entry from the page dictionary.
+        /// </summary>
+        public Rectangle? CropBox { get; } = null;
+
+        /// <summary>
+        /// Get "BleedBox" entry from the page dictionary.
+        /// </summary>
+        public Rectangle? BleedBox { get; } = null;
+
+        /// <summary>
+        /// Get "TrimBox" entry from the page dictionary.
+        /// </summary>
+        public Rectangle? TrimBox { get; } = null;
+
+        /// <summary>
+        /// Get "ArtBox" entry from the page dictionary.
+        /// </summary>
+        public Rectangle? ArtBox { get; } = null;
 
         /// <summary>
         /// The number of this page

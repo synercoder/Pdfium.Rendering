@@ -48,5 +48,20 @@ namespace Pdfium.Rendering.Internals
 
         [DllImport(LIBRARY_NAME)]
         public static extern void FPDF_ClosePage(IntPtr page);
+
+        [DllImport(LIBRARY_NAME)]
+        public static extern bool FPDFPage_GetTrimBox(IntPtr page, out float left, out float bottom, out float right, out float top);
+
+        [DllImport(LIBRARY_NAME)]
+        public static extern bool FPDFPage_GetBleedBox(IntPtr page, out float left, out float bottom, out float right, out float top);
+
+        [DllImport(LIBRARY_NAME)]
+        public static extern bool FPDFPage_GetCropBox(IntPtr page, out float left, out float bottom, out float right, out float top);
+
+        [DllImport(LIBRARY_NAME)]
+        public static extern bool FPDFPage_GetMediaBox(IntPtr page, out float left, out float bottom, out float right, out float top);
+
+        [DllImport(LIBRARY_NAME)]
+        public static extern bool FPDFPage_GetArtBox(IntPtr page, out float left, out float bottom, out float right, out float top);
     }
 }
