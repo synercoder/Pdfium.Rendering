@@ -1,44 +1,43 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Pdfium.Rendering.Internals
+namespace Pdfium.Rendering.Internals;
+
+internal class Pinned : IDisposable
 {
-    internal class Pinned : IDisposable
+    private readonly GCHandle _handle;
+    private bool _disposed;
+
+    public Pinned(object? value)
     {
-        private readonly GCHandle _handle;
-        private bool _disposed;
+        Value = value;
 
-        public Pinned(object? value)
+        _handle = GCHandle.Alloc(value, GCHandleType.Pinned);
+    }
+
+    public static Pinned Pin(object? value)
+        => new Pinned(value);
+
+    public object? Value { get; }
+
+    public IntPtr AddresOfPin
+        => _handle.AddrOfPinnedObject();
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
         {
-            Value = value;
-
-            _handle = GCHandle.Alloc(value, GCHandleType.Pinned);
-        }
-
-        public static Pinned Pin(object? value)
-            => new Pinned(value);
-
-        public object? Value { get; }
-
-        public IntPtr AddresOfPin
-            => _handle.AddrOfPinnedObject();
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposed)
+            if (disposing)
             {
-                if (disposing)
-                {
-                    _handle.Free();
-                }
-                _disposed = true;
+                _handle.Free();
             }
+            _disposed = true;
         }
+    }
 
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 }
