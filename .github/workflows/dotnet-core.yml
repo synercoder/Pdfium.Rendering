@@ -30,10 +30,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Setup .NET Core
+      - name: Setup .NET Core 6
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '6.0.x'
+          include-prerelease: true
+      - name: Setup .NET Core 7
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '7.0.x'
           include-prerelease: true
       - name: Restore
         run: dotnet restore
@@ -74,7 +79,7 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '6.0.x'
+          dotnet-version: '7.0.x'
           include-prerelease: true
       - name: Create Release NuGet package
         run: |

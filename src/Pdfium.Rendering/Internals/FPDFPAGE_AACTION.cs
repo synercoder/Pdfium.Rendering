@@ -1,8 +1,7 @@
-﻿namespace Pdfium.Rendering.Internals
+﻿namespace Pdfium.Rendering.Internals;
+
+internal enum FPDFPAGE_AACTION
 {
-    internal enum FPDFPAGE_AACTION
-    {
-        OPEN = 0,
-        CLOSE = 1
-    }
+    OPEN = 0,
+    CLOSE = 1
 }
