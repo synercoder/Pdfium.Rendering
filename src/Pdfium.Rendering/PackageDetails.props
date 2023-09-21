@@ -10,7 +10,7 @@
     <Product>Pdfium.Rendering</Product>
     <Title>Pdfium.Rendering</Title>
     <Description>Render pdf pages to Bgra pixels byte array.</Description>
-    <PackageReleaseNotes>Added different pdf boxes to the PdfPage class.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fixed bug where mediabox can be null in pdfium page when it was set in the pagetree instead of the page dictionary.</PackageReleaseNotes>
   </PropertyGroup>
 
 </Project>

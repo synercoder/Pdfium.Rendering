@@ -22,9 +22,6 @@ namespace Pdfium.Rendering
 
             if (SecuredWrapper.FPDFPage_GetMediaBox(_page, out var mediaBox))
                 MediaBox = mediaBox;
-            else
-                throw new InvalidOperationException("Media box should not be null.");
-
             if (SecuredWrapper.FPDFPage_GetCropBox(_page, out var cropBox))
                 CropBox = cropBox;
             if (SecuredWrapper.FPDFPage_GetBleedBox(_page, out var bleedBox))
@@ -43,7 +40,7 @@ namespace Pdfium.Rendering
         /// <summary>
         /// Get "MediaBox" entry from the page dictionary.
         /// </summary>
-        public Rectangle MediaBox { get; }
+    public Rectangle? MediaBox { get; }
 
         /// <summary>
         /// Get "CropBox" entry from the page dictionary.
