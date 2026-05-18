@@ -35,7 +35,6 @@
     <RepositoryUrl>https://github.com/synercoder/Pdfium.Rendering/</RepositoryUrl>
     <RestoreSources>
       https://api.nuget.org/v3/index.json;
-      https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json;
     </RestoreSources>
     <UseSharedCompilation>true</UseSharedCompilation>
   </PropertyGroup>
@@ -50,26 +49,5 @@
   <PropertyGroup>
     <PdfiumVersion>119.0.6015</PdfiumVersion>
   </PropertyGroup>
-
-  <Choose>
-    <When Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-      <PropertyGroup>
-        <DefineConstants>$(DefineConstants);SUPPORTS_MATHF</DefineConstants>
-        <DefineConstants>$(DefineConstants);SUPPORTS_HASHCODE</DefineConstants>
-        <DefineConstants>$(DefineConstants);SUPPORTS_CODECOVERAGE</DefineConstants>
-        <DefineConstants>$(DefineConstants);SUPPORTS_NULLABLEREFATTRIBUTES</DefineConstants>
-      </PropertyGroup>
-    </When>
-    <When Condition="'$(TargetFramework)' == 'net6.0'">
-      <PropertyGroup>
-        <DefineConstants>$(DefineConstants);SUPPORTS_MATHF</DefineConstants>
-        <DefineConstants>$(DefineConstants);SUPPORTS_HASHCODE</DefineConstants>
-        <DefineConstants>$(DefineConstants);SUPPORTS_CODECOVERAGE</DefineConstants>
-        <DefineConstants>$(DefineConstants);SUPPORTS_NULLABLEREFATTRIBUTES</DefineConstants>
-        <DefineConstants>$(DefineConstants);SUPPORTS_MEMBERNOTNULL</DefineConstants>
-        <DefineConstants>$(DefineConstants);SUPPORTS_INIT</DefineConstants>
-      </PropertyGroup>
-    </When>
-  </Choose>
 
 </Project>

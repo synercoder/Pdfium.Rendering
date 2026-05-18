@@ -14,9 +14,10 @@ public class Program
         _process("colored-boxes.pdf", pageNumber => $"boxes_{pageNumber}.png");
     }
 
-    private static void _process(string filename, Func<int, string> pageNumberToPngFilename)
+    private static void _process(string path, Func<int, string> pageNumberToPngFilename)
     {
-        using (var stream = File.OpenRead(filename))
+        var fileName = Path.GetFileName(path);
+        using (var stream = File.OpenRead(path))
         {
             using (var pdfFile = new PdfDocument(stream))
             {
@@ -26,6 +27,7 @@ public class Program
                 {
                     using (var page = pdfFile.GetPage(i))
                     {
+                        Console.WriteLine($"{fileName}: Page {i} (Rotation: {page.PageRotation})");
                         var render = page.Render();
                         using (var img = Image.LoadPixelData<Bgra32>(render.Data, render.Width, render.Height))
                         {
