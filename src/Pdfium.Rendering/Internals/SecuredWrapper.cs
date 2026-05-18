@@ -192,6 +192,12 @@ internal static class SecuredWrapper
             ExternalMethods.FPDFText_ClosePage(textPage);
     }
 
+    public static PageRotation FPDFPage_GetRotation(IntPtr page)
+    {
+        lock (_lockObj)
+            return (PageRotation)ExternalMethods.FPDFPage_GetRotation(page);
+    }
+
     public static void FPDF_ClosePage(IntPtr page)
     {
         lock (_lockObj)

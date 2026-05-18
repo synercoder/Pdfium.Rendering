@@ -63,4 +63,7 @@ internal static class ExternalMethods
 
     [DllImport(LIBRARY_NAME)]
     public static extern bool FPDFPage_GetArtBox(IntPtr page, out float left, out float bottom, out float right, out float top);
+
+    [DllImport(LIBRARY_NAME)]
+    public static extern int FPDFPage_GetRotation(IntPtr page);
 }

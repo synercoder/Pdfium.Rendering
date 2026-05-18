@@ -30,6 +30,8 @@ public class PdfPage : IDisposable
             TrimBox = trimBox;
         if (SecuredWrapper.FPDFPage_GetArtBox(_page, out var artBox))
             ArtBox = artBox;
+
+        PageRotation = SecuredWrapper.FPDFPage_GetRotation(_page);
     }
 
     /// <summary>
@@ -66,6 +68,11 @@ public class PdfPage : IDisposable
     /// The number of this page
     /// </summary>
     public int PageNumber { get; }
+
+    /// <summary>
+    /// Get the rotation of this page.
+    /// </summary>
+    public PageRotation PageRotation { get; } = PageRotation.NoRotation;
 
     /// <summary>
     /// Render this page to <see cref="Render"/>
