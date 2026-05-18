@@ -1,5 +1,6 @@
 using Pdfium.Rendering.Tests.Exceptions;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
 
@@ -31,12 +32,12 @@ public static class ImageAssert
 
         for (int y = 0; y < expected.Height; y++)
         {
-            Span<Bgra32> expectedRowSpan = expected.GetPixelRowSpan(y);
-            Span<Bgra32> actualRowSpan = actual.GetPixelRowSpan(y);
+            var expectedRow = expected.DangerousGetPixelRowMemory(y);
+            var actualRow = actual.DangerousGetPixelRowMemory(y);
             for (int x = 0; x < expected.Width; x++)
             {
-                var pixel1 = expectedRowSpan[x];
-                var pixel2 = actualRowSpan[x];
+                var pixel1 = expectedRow.Span[x];
+                var pixel2 = actualRow.Span[x];
 
                 diff += Math.Abs(pixel1.R - pixel2.R);
                 diff += Math.Abs(pixel1.G - pixel2.G);
