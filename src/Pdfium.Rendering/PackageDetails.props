@@ -10,7 +10,7 @@
     <Product>Pdfium.Rendering</Product>
     <Title>Pdfium.Rendering</Title>
     <Description>Render pdf pages to Bgra pixels byte array.</Description>
-    <PackageReleaseNotes>Fixed bug where mediabox can be null in pdfium page when it was set in the pagetree instead of the page dictionary.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fixed bug where pages using backdrop-dependent blend modes (e.g. Color/Luminosity) rendered blank because they were composited against an opaque white backdrop; they are now rendered on a transparent backdrop and composited over white afterwards.</PackageReleaseNotes>
   </PropertyGroup>
 
 </Project>
