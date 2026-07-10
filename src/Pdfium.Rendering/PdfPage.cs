@@ -120,11 +120,16 @@ public class PdfPage : IDisposable
             {
                 handle = SecuredWrapper.FPDFBitmap_CreateEx(width, height, 4, pinnedArray.AddresOfPin, width * BYTES_PER_PIXEL);
 
-                uint background = transparentBackground
-                    ? 0x00FFFFFF
-                    : 0xFFFFFFFF;
-
-                SecuredWrapper.FPDFBitmap_FillRect(handle, 0, 0, width, height, background);
+                // Always render onto a fully transparent backdrop. Pdfium treats the
+                // pixels the bitmap is pre-filled with as the page's initial backdrop.
+                // Filling with an opaque colour (e.g. white) means page-level blend
+                // modes and transparency groups composite against that colour, which
+                // for backdrop-dependent blend modes (Color/Luminosity/Hue/Saturation)
+                // can collapse the whole page to the backdrop colour (a blank page).
+                // A transparent backdrop gives the isolated-group semantics that
+                // conformant viewers use, after which we composite over the requested
+                // background ourselves.
+                SecuredWrapper.FPDFBitmap_FillRect(handle, 0, 0, width, height, 0x00000000);
 
                 SecuredWrapper.FPDF_RenderPageBitmap(handle, _page, 0, 0, width, height, 0, (FPDF_RenderingFlags)renderFlags);
             }
@@ -132,6 +137,20 @@ public class PdfPage : IDisposable
             {
                 if (handle != IntPtr.Zero)
                     SecuredWrapper.FPDFBitmap_Destroy(handle);
+            }
+        }
+
+        if (!transparentBackground)
+        {
+            // Pdfium bitmaps use premultiplied alpha; composite over an opaque
+            // white background: out = premultipliedChannel + (255 - alpha).
+            for (int i = 0; i < byteArray.Length; i += BYTES_PER_PIXEL)
+            {
+                int add = 255 - byteArray[i + 3];
+                byteArray[i] = (byte)Math.Min(255, byteArray[i] + add);
+                byteArray[i + 1] = (byte)Math.Min(255, byteArray[i + 1] + add);
+                byteArray[i + 2] = (byte)Math.Min(255, byteArray[i + 2] + add);
+                byteArray[i + 3] = 255;
             }
         }
 

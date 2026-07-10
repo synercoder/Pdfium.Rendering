@@ -47,7 +47,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PdfiumVersion>119.0.6015</PdfiumVersion>
+    <PdfiumVersion>152.0.7934</PdfiumVersion>
   </PropertyGroup>
 
 </Project>
