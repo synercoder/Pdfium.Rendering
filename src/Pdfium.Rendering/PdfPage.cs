@@ -1,5 +1,6 @@
 using Pdfium.Rendering.Internals;
 using System;
+using System.Threading;
 
 namespace Pdfium.Rendering;
 
@@ -10,7 +11,10 @@ public class PdfPage : IDisposable
 {
     private readonly IntPtr _page;
     private readonly IntPtr _textPage;
-    private bool _disposed;
+
+    // 0 = live, 1 = disposed. Written with Interlocked so that concurrent calls to
+    // Dispose cannot both observe "live" and close the same native handles twice.
+    private int _disposed;
 
     internal PdfPage(IntPtr document, int pageNumber)
     {
@@ -101,8 +105,12 @@ public class PdfPage : IDisposable
     /// <param name="renderFlags">Use flags to change the render mode.</param>
     /// <returns>A <see cref="Render"/> of this page.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="width"/> or <paramref name="height"/> is less than 1.</exception>
+    /// <exception cref="ObjectDisposedException">Thrown when this <see cref="PdfPage"/> has been disposed.</exception>
     public Render RenderToSize(int width, int height, bool transparentBackground = false, RenderFlags renderFlags = default)
     {
+        if (Volatile.Read(ref _disposed) != 0)
+            throw new ObjectDisposedException(GetType().Name);
+
         if (width < 1)
             throw new ArgumentOutOfRangeException(nameof(width), "The value for the width parameter can not be less than 1.");
         if (height < 1)
@@ -163,15 +171,13 @@ public class PdfPage : IDisposable
     /// <param name="disposing">Boolean indicating if the dispose was called from .Dispose or the finalizer.</param>
     protected virtual void Dispose(bool disposing)
     {
-        if (!_disposed)
-        {
-            if (disposing)
-            {
-                SecuredWrapper.FPDFText_ClosePage(_textPage);
-                SecuredWrapper.FPDF_ClosePage(_page);
-            }
+        if (Interlocked.Exchange(ref _disposed, 1) != 0)
+            return;
 
-            _disposed = true;
+        if (disposing)
+        {
+            SecuredWrapper.FPDFText_ClosePage(_textPage);
+            SecuredWrapper.FPDF_ClosePage(_page);
         }
     }
 
