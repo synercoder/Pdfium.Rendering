@@ -2,6 +2,7 @@ using Pdfium.Rendering.Internals;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 
 namespace Pdfium.Rendering;
 
@@ -13,7 +14,10 @@ public class PdfDocument : IDisposable
     private readonly int _streamId;
     private readonly IntPtr _documentPointer;
     private readonly bool _ownsStream;
-    private bool _disposed;
+
+    // 0 = live, 1 = disposed. Written with Interlocked so that concurrent calls to
+    // Dispose cannot both observe "live" and close the same document twice.
+    private int _disposed;
 
     /// <summary>
     /// Construct a <see cref="PdfDocument"/>
@@ -38,18 +42,35 @@ public class PdfDocument : IDisposable
     /// <param name="stream"><see cref="Stream"/> containing a pdf document</param>
     /// <param name="password">The password needed to open <paramref name="stream"/> document.</param>
     /// <param name="ownsStream">If passed true, when disposing, the stream will also be disposed.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="stream"/> is null.</exception>
+    /// <exception cref="PdfiumException">
+    /// Thrown when the document could not be loaded, for example when it is corrupted or when
+    /// <paramref name="password"/> is missing or incorrect. Inspect <see cref="PdfiumException.ErrorCode"/>
+    /// to tell those cases apart.
+    /// </exception>
     public PdfDocument(Stream stream, string? password, bool ownsStream)
     {
         _ = stream ?? throw new ArgumentNullException(nameof(stream));
 
+        _ownsStream = ownsStream;
         _streamId = StreamTracker.Register(stream);
 
-        _documentPointer = SecuredWrapper.FPDF_LoadCustomDocument(stream, password, _streamId);
+        _documentPointer = SecuredWrapper.FPDF_LoadCustomDocument(stream, password, _streamId, out var errorCode);
+
+        if (_documentPointer == IntPtr.Zero)
+        {
+            // This constructor is failing, so Dispose will never run for this instance;
+            // release everything it took before throwing.
+            StreamTracker.Unregister(_streamId);
+            if (_ownsStream)
+                stream.Dispose();
+
+            throw new PdfiumException(errorCode);
+        }
 
         PageCount = SecuredWrapper.FPDF_GetPageCount(_documentPointer);
 
         PageSizes = _getPageSizes();
-        _ownsStream = ownsStream;
     }
 
     /// <summary>
@@ -69,7 +90,7 @@ public class PdfDocument : IDisposable
     /// <returns>A <see cref="PdfPage"/> object.</returns>
     public PdfPage GetPage(int pageNumber)
     {
-        if (_disposed)
+        if (Volatile.Read(ref _disposed) != 0)
             throw new ObjectDisposedException(GetType().Name);
 
         return new PdfPage(_documentPointer, pageNumber);
@@ -77,9 +98,6 @@ public class PdfDocument : IDisposable
 
     private IReadOnlyCollection<Size> _getPageSizes()
     {
-        if (_disposed)
-            throw new ObjectDisposedException(GetType().Name);
-
         var result = new List<Size>(PageCount);
 
         for (int i = 0; i < PageCount; i++)
@@ -103,19 +121,21 @@ public class PdfDocument : IDisposable
     /// <param name="disposing">Boolean indicating if the dispose was called from .Dispose or the finalizer.</param>
     protected virtual void Dispose(bool disposing)
     {
-        if (!_disposed)
+        if (Interlocked.Exchange(ref _disposed, 1) != 0)
+            return;
+
+        if (disposing)
         {
-            if (disposing)
+            // Close the document before releasing the stream. Pdfium reads document data
+            // lazily through the FPDF_FILEACCESS callback and may still read while closing,
+            // so the stream has to stay registered and open until the document is gone.
+            SecuredWrapper.FPDF_CloseDocument(_documentPointer);
+
+            var stream = StreamTracker.Unregister(_streamId);
+            if (_ownsStream)
             {
-                var stream = StreamTracker.Unregister(_streamId);
-                if (_ownsStream)
-                {
-                    stream?.Dispose();
-                }
-                    
-                SecuredWrapper.FPDF_CloseDocument(_documentPointer);
+                stream?.Dispose();
             }
-            _disposed = true;
         }
     }
 }

@@ -13,8 +13,14 @@ internal static class ExternalMethods
     [DllImport(LIBRARY_NAME)]
     public static extern void FPDF_DestroyLibrary();
 
-    [DllImport(LIBRARY_NAME, CharSet = CharSet.Ansi)]
-    public static extern IntPtr FPDF_LoadCustomDocument([MarshalAs(UnmanagedType.LPStruct)] FPDF_FILEACCESS pFileAccess, [MarshalAs(UnmanagedType.LPWStr)] string ? password);
+    [DllImport(LIBRARY_NAME)]
+    public static extern uint FPDF_GetLastError();
+
+    // The password is an FPDF_BYTESTRING (const char*), so it must be marshalled as a
+    // NUL-terminated byte string. Marshalling it as UTF-16 truncates it at the first
+    // NUL byte, which makes every non-empty password fail to match.
+    [DllImport(LIBRARY_NAME)]
+    public static extern IntPtr FPDF_LoadCustomDocument([MarshalAs(UnmanagedType.LPStruct)] FPDF_FILEACCESS pFileAccess, [MarshalAs(UnmanagedType.LPUTF8Str)] string? password);
 
     [DllImport(LIBRARY_NAME)]
     public static extern void FPDF_CloseDocument(IntPtr document);

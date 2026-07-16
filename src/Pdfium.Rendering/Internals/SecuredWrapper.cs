@@ -6,6 +6,43 @@ using System.Runtime.InteropServices;
 
 namespace Pdfium.Rendering.Internals;
 
+/// <summary>
+/// Serialises every call into pdfium behind a single process-wide lock.
+/// </summary>
+/// <remarks>
+/// <para>
+/// This lock is required and must not be removed or narrowed to a per-document
+/// or per-thread scope. Pdfium is not thread-safe and places the burden of
+/// serialisation on the embedder. From the note above FPDF_InitLibrary in
+/// pdfium's public/fpdfview.h:
+/// </para>
+/// <para>
+/// "NOTE: None of the PDFium APIs are thread-safe. They expect to be called
+/// from a single thread. Barring that, embedders are required to ensure (via a
+/// mutex or similar) that only a single PDFium call can be made at a time."
+/// </para>
+/// <para>
+/// Holding a document per thread is NOT sufficient. Rendering any page reaches
+/// through the global CFX_GEModule into one process-wide CFX_FontMgr, which
+/// mutates two std::map font caches and drives a single shared FreeType
+/// FT_Library. Two threads rendering unrelated documents therefore race on that
+/// shared state, which corrupts the heap rather than failing cleanly. The
+/// failure is timing-dependent and largely disappears once the font cache is
+/// warm, so removing this lock tends to look correct under test and break in
+/// production.
+/// </para>
+/// <para>
+/// The consequence is that pdfium work does not scale across threads within a
+/// process. The upstream-recommended way to render in parallel is multiple
+/// processes, each with its own FPDF_InitLibrary. See the threading section of
+/// the README.
+/// </para>
+/// <para>
+/// The lock is taken on an interned string so that every copy of this assembly
+/// in the process (for example under separate AssemblyLoadContexts) shares one
+/// lock, matching the fact that they share one native pdfium library.
+/// </para>
+/// </remarks>
 internal static class SecuredWrapper
 {
     private static readonly string _lockObj = string.Intern("d61f1ccb-8b03-41ff-ada3-e2a9f680384a");
@@ -97,7 +134,11 @@ internal static class SecuredWrapper
         return libHandle;
     }
 
-    public static IntPtr FPDF_LoadCustomDocument(Stream input, string? password, int id)
+    /// <summary>
+    /// Load a document. Returns <see cref="IntPtr.Zero"/> on failure, in which case
+    /// <paramref name="errorCode"/> describes the reason.
+    /// </summary>
+    public static IntPtr FPDF_LoadCustomDocument(Stream input, string? password, int id, out PdfiumErrorCode errorCode)
     {
         var getBlock = Marshal.GetFunctionPointerForDelegate(_getBlockDelegate);
 
@@ -110,7 +151,23 @@ internal static class SecuredWrapper
 
         lock (_lockObj)
         {
-            return ExternalMethods.FPDF_LoadCustomDocument(access, password);
+            var document = ExternalMethods.FPDF_LoadCustomDocument(access, password);
+            if (document != IntPtr.Zero)
+            {
+                errorCode = PdfiumErrorCode.Success;
+                return document;
+            }
+
+            // The last error is global pdfium state, so it has to be read inside the same
+            // lock acquisition as the call that set it, or another thread could overwrite
+            // it in between.
+            var error = (PdfiumErrorCode)ExternalMethods.FPDF_GetLastError();
+
+            errorCode = error == PdfiumErrorCode.Success
+                ? PdfiumErrorCode.Unknown
+                : error;
+
+            return IntPtr.Zero;
         }
     }
 
@@ -280,19 +337,29 @@ internal static class SecuredWrapper
 
     private static readonly FPDF_GetBlockDelegate _getBlockDelegate = _fPDF_GetBlock;
 
+    // Invoked by pdfium from native code, both during FPDF_LoadCustomDocument and
+    // lazily while pages are loaded and rendered. Exceptions must not escape into
+    // the native frame, so all failures are reported to pdfium as a zero return.
     private static int _fPDF_GetBlock(IntPtr param, uint position, IntPtr buffer, uint size)
     {
-        var stream = StreamTracker.Get((int)param);
-        if (stream == null)
-            return 0;
-        byte[] managedBuffer = new byte[size];
+        try
+        {
+            var stream = StreamTracker.Get((int)param);
+            if (stream == null)
+                return 0;
+            byte[] managedBuffer = new byte[size];
 
-        stream.Position = position;
-        int read = stream.Read(managedBuffer, 0, (int)size);
-        if (read != size)
-            return 0;
+            stream.Position = position;
+            int read = stream.Read(managedBuffer, 0, (int)size);
+            if (read != size)
+                return 0;
 
-        Marshal.Copy(managedBuffer, 0, buffer, (int)size);
-        return 1;
+            Marshal.Copy(managedBuffer, 0, buffer, (int)size);
+            return 1;
+        }
+        catch
+        {
+            return 0;
+        }
     }
 }

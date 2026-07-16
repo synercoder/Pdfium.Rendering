@@ -27,10 +27,18 @@ internal static class StreamTracker
             : throw new ArgumentOutOfRangeException(nameof(id));
     }
 
-    public static Stream Get(int id)
+    /// <summary>
+    /// Look up a registered stream, or null when no stream is registered for <paramref name="id"/>.
+    /// </summary>
+    /// <remarks>
+    /// Returns null rather than throwing because the only caller is the FPDF_FILEACCESS
+    /// callback, which is invoked from native code. Throwing there would propagate a
+    /// managed exception through a native frame.
+    /// </remarks>
+    public static Stream? Get(int id)
     {
         return _files.TryGetValue(id, out Stream? stream)
             ? stream
-            : throw new ArgumentOutOfRangeException(nameof(id));
+            : null;
     }
 }
