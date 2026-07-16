@@ -134,7 +134,11 @@ internal static class SecuredWrapper
         return libHandle;
     }
 
-    public static IntPtr FPDF_LoadCustomDocument(Stream input, string? password, int id)
+    /// <summary>
+    /// Load a document. Returns <see cref="IntPtr.Zero"/> on failure, in which case
+    /// <paramref name="errorCode"/> describes the reason.
+    /// </summary>
+    public static IntPtr FPDF_LoadCustomDocument(Stream input, string? password, int id, out PdfiumErrorCode errorCode)
     {
         var getBlock = Marshal.GetFunctionPointerForDelegate(_getBlockDelegate);
 
@@ -147,7 +151,23 @@ internal static class SecuredWrapper
 
         lock (_lockObj)
         {
-            return ExternalMethods.FPDF_LoadCustomDocument(access, password);
+            var document = ExternalMethods.FPDF_LoadCustomDocument(access, password);
+            if (document != IntPtr.Zero)
+            {
+                errorCode = PdfiumErrorCode.Success;
+                return document;
+            }
+
+            // The last error is global pdfium state, so it has to be read inside the same
+            // lock acquisition as the call that set it, or another thread could overwrite
+            // it in between.
+            var error = (PdfiumErrorCode)ExternalMethods.FPDF_GetLastError();
+
+            errorCode = error == PdfiumErrorCode.Success
+                ? PdfiumErrorCode.Unknown
+                : error;
+
+            return IntPtr.Zero;
         }
     }
 

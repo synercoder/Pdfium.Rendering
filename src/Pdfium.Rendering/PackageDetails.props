@@ -10,7 +10,7 @@
     <Product>Pdfium.Rendering</Product>
     <Title>Pdfium.Rendering</Title>
     <Description>Render pdf pages to Bgra pixels byte array.</Description>
-    <PackageReleaseNotes>Fixed bug where pages using backdrop-dependent blend modes (e.g. Color/Luminosity) rendered blank because they were composited against an opaque white backdrop; they are now rendered on a transparent backdrop and composited over white afterwards.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fixed password-protected documents never opening, because the password was marshalled as UTF-16 instead of a byte string. Documents that cannot be loaded now throw PdfiumException with a PdfiumErrorCode (e.g. Password, Format) instead of returning an unusable PdfDocument, rendering a disposed page now throws instead of using a freed handle, and disposal is safe to call concurrently.</PackageReleaseNotes>
   </PropertyGroup>
 
 </Project>

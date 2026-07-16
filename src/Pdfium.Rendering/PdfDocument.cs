@@ -42,18 +42,35 @@ public class PdfDocument : IDisposable
     /// <param name="stream"><see cref="Stream"/> containing a pdf document</param>
     /// <param name="password">The password needed to open <paramref name="stream"/> document.</param>
     /// <param name="ownsStream">If passed true, when disposing, the stream will also be disposed.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="stream"/> is null.</exception>
+    /// <exception cref="PdfiumException">
+    /// Thrown when the document could not be loaded, for example when it is corrupted or when
+    /// <paramref name="password"/> is missing or incorrect. Inspect <see cref="PdfiumException.ErrorCode"/>
+    /// to tell those cases apart.
+    /// </exception>
     public PdfDocument(Stream stream, string? password, bool ownsStream)
     {
         _ = stream ?? throw new ArgumentNullException(nameof(stream));
 
+        _ownsStream = ownsStream;
         _streamId = StreamTracker.Register(stream);
 
-        _documentPointer = SecuredWrapper.FPDF_LoadCustomDocument(stream, password, _streamId);
+        _documentPointer = SecuredWrapper.FPDF_LoadCustomDocument(stream, password, _streamId, out var errorCode);
+
+        if (_documentPointer == IntPtr.Zero)
+        {
+            // This constructor is failing, so Dispose will never run for this instance;
+            // release everything it took before throwing.
+            StreamTracker.Unregister(_streamId);
+            if (_ownsStream)
+                stream.Dispose();
+
+            throw new PdfiumException(errorCode);
+        }
 
         PageCount = SecuredWrapper.FPDF_GetPageCount(_documentPointer);
 
         PageSizes = _getPageSizes();
-        _ownsStream = ownsStream;
     }
 
     /// <summary>
