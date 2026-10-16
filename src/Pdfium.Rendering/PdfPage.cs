@@ -150,14 +150,19 @@ public class PdfPage : IDisposable
 
         if (!transparentBackground)
         {
-            // Pdfium bitmaps use premultiplied alpha; composite over an opaque
-            // white background: out = premultipliedChannel + (255 - alpha).
+            // Pdfium BGRA bitmaps use straight (non-premultiplied) alpha; composite
+            // over an opaque white background: out = (channel * alpha + 255 * (255 - alpha)) / 255.
+            // Opaque pixels are already correct, which is the common case.
             for (int i = 0; i < byteArray.Length; i += BYTES_PER_PIXEL)
             {
-                int add = 255 - byteArray[i + 3];
-                byteArray[i] = (byte)Math.Min(255, byteArray[i] + add);
-                byteArray[i + 1] = (byte)Math.Min(255, byteArray[i + 1] + add);
-                byteArray[i + 2] = (byte)Math.Min(255, byteArray[i + 2] + add);
+                int alpha = byteArray[i + 3];
+                if (alpha == 255)
+                    continue;
+
+                int white = 255 * (255 - alpha) + 127;
+                byteArray[i] = (byte)((byteArray[i] * alpha + white) / 255);
+                byteArray[i + 1] = (byte)((byteArray[i + 1] * alpha + white) / 255);
+                byteArray[i + 2] = (byte)((byteArray[i + 2] * alpha + white) / 255);
                 byteArray[i + 3] = 255;
             }
         }
