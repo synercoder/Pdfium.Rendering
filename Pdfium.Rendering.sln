@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31410.414
+# Visual Studio Version 18
+VisualStudioVersion = 18.10.12217.157 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "root", "root", "{B109FA91-ABD6-4774-AD90-141914B26270}"
 	ProjectSection(SolutionItems) = preProject
@@ -30,14 +30,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{C9CE4AA5
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pdfium.Rendering.Tests", "tests\Pdfium.Rendering.Tests\Pdfium.Rendering.Tests.csproj", "{978F21DF-A142-46CA-B339-F4EE1F01AAE9}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{BD8BDABA-7ACC-4D9F-A34E-440F38A84CDC}"
-	ProjectSection(SolutionItems) = preProject
-		samples\Directory.Build.props = samples\Directory.Build.props
-		samples\Directory.Build.targets = samples\Directory.Build.targets
-	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pdfium.Rendering.TestConsole", "samples\Pdfium.Rendering.TestConsole\Pdfium.Rendering.TestConsole.csproj", "{47392639-240E-443E-AF61-1818C210431D}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{BF8C09C3-403B-4AB9-A709-08A21254395D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{B1684E27-8324-42B0-A8CE-1D8324546231}"
@@ -59,10 +51,6 @@ Global
 		{978F21DF-A142-46CA-B339-F4EE1F01AAE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{978F21DF-A142-46CA-B339-F4EE1F01AAE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{978F21DF-A142-46CA-B339-F4EE1F01AAE9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{47392639-240E-443E-AF61-1818C210431D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{47392639-240E-443E-AF61-1818C210431D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{47392639-240E-443E-AF61-1818C210431D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{47392639-240E-443E-AF61-1818C210431D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -72,8 +60,6 @@ Global
 		{433363CC-BA2D-4B7B-8D5F-20680373A21F} = {0290839F-B61C-43E6-933B-5AA16C029487}
 		{C9CE4AA5-B7C7-4C42-9455-7F402661F1F0} = {B109FA91-ABD6-4774-AD90-141914B26270}
 		{978F21DF-A142-46CA-B339-F4EE1F01AAE9} = {C9CE4AA5-B7C7-4C42-9455-7F402661F1F0}
-		{BD8BDABA-7ACC-4D9F-A34E-440F38A84CDC} = {B109FA91-ABD6-4774-AD90-141914B26270}
-		{47392639-240E-443E-AF61-1818C210431D} = {BD8BDABA-7ACC-4D9F-A34E-440F38A84CDC}
 		{BF8C09C3-403B-4AB9-A709-08A21254395D} = {B109FA91-ABD6-4774-AD90-141914B26270}
 		{B1684E27-8324-42B0-A8CE-1D8324546231} = {BF8C09C3-403B-4AB9-A709-08A21254395D}
 	EndGlobalSection

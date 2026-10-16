@@ -1,12 +1,11 @@
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 
 namespace Pdfium.Rendering.Tests.Exceptions;
 
-public class VisualException : Xunit.Sdk.AssertActualExpectedException
+public class VisualException : Xunit.Sdk.XunitException
 {
     public VisualException(Image expected, Image actual, double difference, string methodName)
-        : base(expected, actual, $"{methodName} Failure, actual is {difference * 100}% different")
+        : base($"{methodName} Failure, actual is {difference * 100}% different")
     {
         Difference = difference;
         ExpectedImage = expected;

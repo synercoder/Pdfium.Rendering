@@ -14,6 +14,7 @@ public class RenderTests
     [InlineData("simple.pdf", 2, 72, "compare-files/page_2.png")]
     [InlineData("simple.pdf", 3, 72, "compare-files/page_3.png")]
     [InlineData("simple.pdf", 4, 72, "compare-files/page_4.png")]
+    [InlineData("colored-boxes.pdf", 1, 72, "compare-files/colored-boxes_page_1.png")]
     public void RenderPage(string filePath, int pageNumber, int dpi, string compareFile)
     {
         using (var stream = File.OpenRead(filePath))
