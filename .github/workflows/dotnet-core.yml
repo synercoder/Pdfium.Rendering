@@ -29,9 +29,9 @@ jobs:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Setup .NET Core 10
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
       - name: Restore
@@ -55,12 +55,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download Artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: nupkg
           path: ./nupkg
       - name: Setup .NET Core @ Latest
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v6
       - name: Publish Nuget to GitHub registry
         run: dotnet nuget push ./nupkg/*.nupkg -k ${GITHUB_TOKEN} -s ${GITHUB_FEED} --skip-duplicate
         env:
@@ -70,9 +70,9 @@ jobs:
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
       - name: Create Release NuGet package
