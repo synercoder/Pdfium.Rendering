@@ -2,7 +2,7 @@ name: .NET Core
 on:
   push:
     branches:
-      - develop
+      - main
   pull_request:
   release:
     types:
@@ -52,7 +52,7 @@ jobs:
           path: ./artifacts/pkg/Release/${{ env.PROJECT_NAME }}.*.nupkg
   prerelease:
     needs: build
-    if: github.ref == 'refs/heads/develop'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Download Artifact
