@@ -10,7 +10,7 @@
     <Product>Pdfium.Rendering</Product>
     <Title>Pdfium.Rendering</Title>
     <Description>Render pdf pages to Bgra pixels byte array.</Description>
-    <PackageReleaseNotes>Fixed password-protected documents never opening, because the password was marshalled as UTF-16 instead of a byte string. Documents that cannot be loaded now throw PdfiumException with a PdfiumErrorCode (e.g. Password, Format) instead of returning an unusable PdfDocument, rendering a disposed page now throws instead of using a freed handle, and disposal is safe to call concurrently.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fixed semi-transparent content (e.g. images with a soft mask or fills with an opacity below 100%) rendering too light, often completely white, when rendering with a white background, a regression introduced in 1.0.0-alpha07: Pdfium returns straight (non-premultiplied) alpha, but it was composited as if premultiplied. Fixed password-protected documents never opening, because the password was marshalled as UTF-16 instead of a byte string. Documents that cannot be loaded now throw PdfiumException with a PdfiumErrorCode (e.g. Password, Format) instead of returning an unusable PdfDocument, rendering a disposed page now throws instead of using a freed handle, and disposal is safe to call concurrently.</PackageReleaseNotes>
   </PropertyGroup>
 
 </Project>

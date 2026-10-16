@@ -13,7 +13,7 @@ public class Render
     }
 
     /// <summary>
-    /// Image data, 4 bytes per pixel, in format bgra
+    /// Image data, 4 bytes per pixel, in format bgra with straight (non-premultiplied) alpha.
     /// </summary>
     public byte[] Data { get; }
 
