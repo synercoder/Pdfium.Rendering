@@ -1,0 +1,26 @@
+<Solution>
+  <Folder Name="/root/">
+    <File Path=".editorconfig" />
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="global.json" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/root/.github/" />
+  <Folder Name="/root/.github/workflows/">
+    <File Path=".github/workflows/dotnet-core.yml" />
+  </Folder>
+  <Folder Name="/root/src/">
+    <File Path="src/Directory.Build.props" />
+    <File Path="src/Directory.Build.targets" />
+    <Project Path="src/Pdfium.Rendering/Pdfium.Rendering.csproj" />
+  </Folder>
+  <Folder Name="/root/tests/">
+    <File Path="tests/Directory.Build.props" />
+    <File Path="tests/Directory.Build.targets" />
+    <Project Path="tests/Pdfium.Rendering.Tests/Pdfium.Rendering.Tests.csproj" />
+  </Folder>
+</Solution>
