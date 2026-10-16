@@ -1,7 +1,6 @@
 using Pdfium.Rendering.Tests.Helpers;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using System;
 using System.IO;
 using Xunit;
 
