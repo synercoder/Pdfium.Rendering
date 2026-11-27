@@ -108,17 +108,43 @@ public class PdfPage : IDisposable
     /// <exception cref="ObjectDisposedException">Thrown when this <see cref="PdfPage"/> has been disposed.</exception>
     public Render RenderToSize(int width, int height, bool transparentBackground = false, RenderFlags renderFlags = default)
     {
+        return RenderPart(0, 0, width, height, width, height, transparentBackground, renderFlags);
+    }
+
+    /// <summary>
+    /// Render part of this page to <see cref="Render"/>.
+    /// Render target is a bitmap of size <paramref name="bmpWidth"/> x <paramref name="bmpHeight"/>.
+    /// The page is rendered into the bitmap at the specified <paramref name="startX"/> and <paramref name="startY"/> coordinates, with the specified <paramref name="pageWidth"/> and <paramref name="pageHeight"/> dimensions.
+    /// Any area outside of the bmpWidth x bmpHeight bitmap will be clipped and not rendered.
+    /// </summary>
+    /// <param name="startX">The x-coordinate, in bitmap pixels, where the left edge of the page is placed. Can be negative to shift the page left, e.g. to render a part further right on the page.</param>
+    /// <param name="startY">The y-coordinate, in bitmap pixels, where the top edge of the page is placed. Can be negative to shift the page up, e.g. to render a part further down on the page.</param>
+    /// <param name="bmpWidth">The bitmap width to render.</param>
+    /// <param name="bmpHeight">The bitmap height to render.</param>
+    /// <param name="pageWidth">The page width to render.</param>
+    /// <param name="pageHeight">The page height to render.</param>
+    /// <param name="transparentBackground">Boolean to indicate if the background should be rendered as transparent or white.</param>
+    /// <param name="renderFlags">Use flags to change the render mode.</param>
+    /// <returns>A <see cref="Render"/> of this page.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="bmpWidth"/>, <paramref name="bmpHeight"/>, <paramref name="pageWidth"/> or <paramref name="pageHeight"/> is less than 1.</exception>
+    /// <exception cref="ObjectDisposedException">Thrown when this <see cref="PdfPage"/> has been disposed.</exception>
+    public Render RenderPart(int startX, int startY, int bmpWidth, int bmpHeight, int pageWidth, int pageHeight, bool transparentBackground = false, RenderFlags renderFlags = default)
+    {
         if (Volatile.Read(ref _disposed) != 0)
             throw new ObjectDisposedException(GetType().Name);
 
-        if (width < 1)
-            throw new ArgumentOutOfRangeException(nameof(width), "The value for the width parameter can not be less than 1.");
-        if (height < 1)
-            throw new ArgumentOutOfRangeException(nameof(height), "The value for the height parameter can not be less than 1.");
+        if (pageWidth < 1)
+            throw new ArgumentOutOfRangeException(nameof(pageWidth), "The value for the page width parameter can not be less than 1.");
+        if (pageHeight < 1)
+            throw new ArgumentOutOfRangeException(nameof(pageHeight), "The value for the page height parameter can not be less than 1.");
+        if (bmpWidth < 1)
+            throw new ArgumentOutOfRangeException(nameof(bmpWidth), "The value for the bitmap width parameter can not be less than 1.");
+        if (bmpHeight < 1)
+            throw new ArgumentOutOfRangeException(nameof(bmpHeight), "The value for the bitmap height parameter can not be less than 1.");
 
         const int BYTES_PER_PIXEL = 4;
 
-        var byteArray = new byte[BYTES_PER_PIXEL * width * height];
+        var byteArray = new byte[BYTES_PER_PIXEL * bmpWidth * bmpHeight];
 
         using (var pinnedArray = Pinned.Pin(byteArray))
         {
@@ -126,7 +152,7 @@ public class PdfPage : IDisposable
 
             try
             {
-                handle = SecuredWrapper.FPDFBitmap_CreateEx(width, height, 4, pinnedArray.AddresOfPin, width * BYTES_PER_PIXEL);
+                handle = SecuredWrapper.FPDFBitmap_CreateEx(bmpWidth, bmpHeight, 4, pinnedArray.AddresOfPin, bmpWidth * BYTES_PER_PIXEL);
 
                 // Always render onto a fully transparent backdrop. Pdfium treats the
                 // pixels the bitmap is pre-filled with as the page's initial backdrop.
@@ -137,9 +163,9 @@ public class PdfPage : IDisposable
                 // A transparent backdrop gives the isolated-group semantics that
                 // conformant viewers use, after which we composite over the requested
                 // background ourselves.
-                SecuredWrapper.FPDFBitmap_FillRect(handle, 0, 0, width, height, 0x00000000);
+                SecuredWrapper.FPDFBitmap_FillRect(handle, 0, 0, bmpWidth, bmpHeight, 0x00000000);
 
-                SecuredWrapper.FPDF_RenderPageBitmap(handle, _page, 0, 0, width, height, 0, (FPDF_RenderingFlags)renderFlags);
+                SecuredWrapper.FPDF_RenderPageBitmap(handle, _page, startX, startY, pageWidth, pageHeight, 0, (FPDF_RenderingFlags)renderFlags);
             }
             finally
             {
@@ -159,15 +185,15 @@ public class PdfPage : IDisposable
                 if (alpha == 255)
                     continue;
 
-                int white = 255 * (255 - alpha) + 127;
-                byteArray[i] = (byte)((byteArray[i] * alpha + white) / 255);
-                byteArray[i + 1] = (byte)((byteArray[i + 1] * alpha + white) / 255);
-                byteArray[i + 2] = (byte)((byteArray[i + 2] * alpha + white) / 255);
+                int white = ( 255 * ( 255 - alpha ) ) + 127;
+                byteArray[i] = (byte)( ( ( byteArray[i] * alpha ) + white ) / 255 );
+                byteArray[i + 1] = (byte)( ( ( byteArray[i + 1] * alpha ) + white ) / 255 );
+                byteArray[i + 2] = (byte)( ( ( byteArray[i + 2] * alpha ) + white ) / 255 );
                 byteArray[i + 3] = 255;
             }
         }
 
-        return new Render(byteArray, width, height);
+        return new Render(byteArray, bmpWidth, bmpHeight);
     }
 
     /// <summary>
